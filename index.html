@@ -7,10 +7,10 @@
 <nav class="tabs"><button class="tab active" data-tab="req" onclick="tab('req')">📋 Requisições</button><button class="tab" data-tab="buy" onclick="tab('buy')">🛍 Setor de compras / PDF</button><button class="tab" data-tab="receive" onclick="tab('receive')">✓ Itens entregues</button><button class="tab" data-tab="sup" onclick="tab('sup')">🏢 Fornecedores</button><button class="tab" data-tab="settings" onclick="tab('settings')">⚙ Configurações / Backup</button></nav>
 <section id="formPanel" class="panel hidden"><div class="formhead"><h3 id="formTitle">Nova requisição</h3><button onclick="closeForm()">✕ Fechar</button></div><form id="reqForm"><input id="reqId" type="hidden"><div class="grid"><div class="field"><label>Número</label><input id="reqNo" readonly></div><div class="field"><label>Data solicitada *</label><input id="reqDate" type="text" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" autocomplete="off" required></div><div class="field"><label>Solicitante *</label><input id="requester" required placeholder="Nome do solicitante"></div><div class="field"><label>Departamento / setor</label><input id="department" placeholder="Ex.: Manutenção"></div><div class="field"><label>Prioridade do pedido *</label><select id="priority" required><option value="medium">Médio</option><option value="critical">Crítico</option><option value="high">Alto</option><option value="low">Baixo</option></select></div><div class="field span2"><label>Finalidade / justificativa</label><input id="purpose" placeholder="Motivo da solicitação"></div><div class="field"><label>Observação geral</label><input id="reqNotes" placeholder="Informações adicionais"></div></div><div class="itemhead" style="margin-top:20px"><h3>Itens da requisição</h3><button type="button" class="green" onclick="addLine()">＋ Adicionar item</button></div><div id="lines"></div><div class="notice" style="margin-top:12px">Cada requisição pode conter vários itens, inclusive de fornecedores diferentes. A quantidade recebida será controlada item a item.</div><div class="formactions" style="margin-top:15px"><button type="button" onclick="closeForm()">Cancelar</button><button type="submit" class="primary">Salvar requisição</button></div></form></section>
 <section id="mainPanel" class="panel"><div class="toolbar"><div><b id="listTitle">Requisições cadastradas</b><div class="muted" id="listSub">Consulte, edite e acompanhe as solicitações.</div></div><input id="search" placeholder="Buscar número, item, solicitante..." oninput="render()"><select id="statusFilter" onchange="render()"><option value="all">Todos os status</option><option value="waiting">Aguardando aprovação</option><option value="approved">Aprovada</option><option value="rejected">Rejeitada</option><option value="done">Concluída</option></select></div><div id="selection" class="selectionbar hidden"><span id="selectedCount">0 selecionados</span><div class="actions"><select id="supplierFilter" onchange="render()"><option value="all">Todos os fornecedores</option></select><button class="primary" onclick="pdfSelected()">▣ PDF dos selecionados</button><button onclick="pdfSupplier()">PDF do fornecedor</button><button onclick="selectVisible(true)">Selecionar visíveis</button><button onclick="selectVisible(false)">Limpar seleção</button></div></div><div class="tablewrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div></section>
-<section id="settingsPanel" class="panel hidden"><div class="formhead"><div><h3>Configurações e segurança</h3><div class="muted">Backup dos dados e configuração do projeto Firebase.</div></div></div><div class="settingscard" style="margin-bottom:14px"><h3>Sincronização entre computadores</h3><p class="muted">Entre com uma conta criada pelo administrador do Firebase para sincronizar requisições e fornecedores pela nuvem.</p><div class="grid" style="grid-template-columns:2fr 2fr auto auto;align-items:end"><div class="field"><label>E-mail</label><input id="firebaseEmail" type="email" autocomplete="username" placeholder="usuario@empresa.com"></div><div class="field"><label>Senha</label><input id="firebasePassword" type="password" autocomplete="current-password" placeholder="Senha da conta"></div><button class="primary" onclick="firebaseLogin()">Entrar</button><button onclick="firebaseLogout()">Sair</button></div><div id="cloudStatus" class="notice" style="margin-top:10px">Não conectado à nuvem. Configure o Firebase e entre com sua conta.</div></div><div class="settingsgrid"><div class="settingscard"><h3>Backup e restauração</h3><p class="muted">Exporte requisições, itens, fornecedores, prioridades e histórico em JSON. Use para restaurar os dados neste navegador ou migrar para outro computador.</p><div class="settingsactions"><button class="primary" onclick="backupJSON()">⬇ Baixar backup .json</button><button onclick="document.getElementById('restoreFile').click()">↥ Restaurar arquivo .json</button><input id="restoreFile" class="fileinput" type="file" accept=".json,application/json" onchange="restoreJSON(event)"></div></div><div class="settingscard"><h3>Configuração Firebase</h3><p class="muted">Cole o objeto de configuração do projeto Firebase (Configurações do projeto → Seus apps → SDK da Web).</p><textarea id="firebaseConfig" spellcheck="false" placeholder='{ "apiKey": "...", "authDomain": "...", "projectId": "...", "storageBucket": "...", "messagingSenderId": "...", "appId": "..." }'></textarea><div class="settingsactions"><button class="primary" onclick="saveFirebaseConfig()">Salvar configuração</button><button onclick="clearFirebaseConfig()">Limpar</button></div><div id="firebaseStatus" class="notice" style="margin-top:10px">Configuração ainda não salva.</div></div></div><div class="notice" style="margin-top:14px"><b>Importante para GitHub Pages:</b> a configuração web do Firebase fica visível no navegador e não deve conter senhas ou chaves privadas. Antes de ativar sincronização na nuvem, configure Firebase Authentication e regras de segurança do Firestore. A sincronização usa Firebase Authentication e Cloud Firestore. Crie os usuários no Firebase Console e aplique as regras de segurança fornecidas junto com este arquivo.</div></section><section id="supPanel" class="panel hidden"><div class="formhead"><div><h3>Cadastro de fornecedores</h3><div class="muted">Cadastre e mantenha os fornecedores disponíveis nos itens.</div></div><button class="primary" onclick="addSupplier()">＋ Novo fornecedor</button></div><div id="supList"></div></section><section id="printArea" class="hidden"></section><footer>Elo Scientific • Gestão de Compras • Sincronização na nuvem via Firebase • cópia local de segurança neste navegador</footer></main>
+<section id="settingsPanel" class="panel hidden"><div class="formhead"><div><h3>Configurações e segurança</h3><div class="muted">Backup dos dados e sincronização na nuvem.</div></div></div><div class="settingscard" style="margin-bottom:14px"><h3>Sincronização entre computadores</h3><p class="muted">As chaves do projeto Firebase já estão incorporadas ao sistema. Basta entrar com sua conta para sincronizar requisições e fornecedores em tempo real.</p><div class="grid" style="grid-template-columns:2fr 2fr auto auto;align-items:end"><div class="field"><label>E-mail</label><input id="firebaseEmail" type="email" autocomplete="username" placeholder="usuario@empresa.com"></div><div class="field"><label>Senha</label><input id="firebasePassword" type="password" autocomplete="current-password" placeholder="Senha da conta"></div><button class="primary" onclick="firebaseLogin()">Entrar</button><button onclick="firebaseLogout()">Sair</button></div><div id="cloudStatus" class="notice" style="margin-top:10px">Projeto crompraselo configurado. Entre com sua conta para sincronizar na nuvem.</div></div><div class="settingscard"><h3>Backup e restauração local</h3><p class="muted">Exporte requisições, itens, fornecedores, prioridades e histórico em JSON. Use para restaurar os dados neste navegador ou migrar para outro computador.</p><div class="settingsactions"><button class="primary" onclick="backupJSON()">⬇ Baixar backup .json</button><button onclick="document.getElementById('restoreFile').click()">↥ Restaurar arquivo .json</button><input id="restoreFile" class="fileinput" type="file" accept=".json,application/json" onchange="restoreJSON(event)"></div></div></section><section id="supPanel" class="panel hidden"><div class="formhead"><div><h3>Cadastro de fornecedores</h3><div class="muted">Cadastre e mantenha os fornecedores disponíveis nos itens.</div></div><button class="primary" onclick="addSupplier()">＋ Novo fornecedor</button></div><div id="supList"></div></section><section id="printArea" class="hidden"></section><footer>Elo Scientific • Gestão de Compras • Sincronização na nuvem via Firebase • cópia local de segurança neste navegador</footer></main>
 <script>
 const KEY='gestao_compras_v2';let db=JSON.parse(localStorage.getItem(KEY)||'null')||{reqs:[],suppliers:[]};let current='req',selected=new Set();const $=id=>document.getElementById(id);$('today').textContent=new Date().toLocaleDateString('pt-BR',{dateStyle:'full'});function persist(){localStorage.setItem(KEY,JSON.stringify(db));render();if(window.firebaseSaveDb)window.firebaseSaveDb(db)};function uid(){return crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random())};function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function fmt(n){return Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:3})}function date(v){return v?new Date(v+'T12:00:00').toLocaleDateString('pt-BR'):'—'}function dateBRInput(v){if(!v)return '';let p=v.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:v}function parseDateBR(v){let m=String(v||'').trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(!m)return '';let d=Number(m[1]),mo=Number(m[2]),y=Number(m[3]),dt=new Date(y,mo-1,d);if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d)return '';return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`}function maskDateBR(el){let n=el.value.replace(/\D/g,'').slice(0,8);if(n.length>4)el.value=n.slice(0,2)+'/'+n.slice(2,4)+'/'+n.slice(4);else if(n.length>2)el.value=n.slice(0,2)+'/'+n.slice(2);else el.value=n}function supplierName(id){return db.suppliers.find(s=>s.id===id)?.name||'Não informado'}function reqStatus(r){return r.approval||'waiting'}function priorityLabel(p){return ({critical:'Crítico',high:'Alto',medium:'Médio',low:'Baixo'})[p||'medium']}function priorityClass(p){return ({critical:'critical',high:'high',medium:'medium',low:'low'})[p||'medium']}function itemState(i){return i.received>=i.qty?'done':i.received>0?'partial':'open'}function allItems(){return db.reqs.flatMap(r=>r.items.map(i=>({...i,req:r})))}function refreshStats(){$('stReq').textContent=db.reqs.length;$('stWait').textContent=db.reqs.filter(r=>reqStatus(r)==='waiting').length;$('stBuy').textContent=db.reqs.filter(r=>reqStatus(r)==='approved').length;$('stOpen').textContent=allItems().filter(x=>itemState(x)!=='done').length;$('stDone').textContent=allItems().filter(x=>itemState(x)==='done').length}
-function tab(t){current=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));$('formPanel').classList.add('hidden');$('mainPanel').classList.toggle('hidden',t==='sup'||t==='settings');$('supPanel').classList.toggle('hidden',t!=='sup');$('settingsPanel').classList.toggle('hidden',t!=='settings');$('selection').classList.toggle('hidden',t!=='buy');$('listTitle').textContent={req:'Requisições cadastradas',buy:'Itens para o setor de compras',receive:'Controle de recebimentos'}[t]||'';$('listSub').textContent={req:'Consulte, edite, aprove ou rejeite solicitações.',buy:'Marque os itens desejados e gere PDFs por seleção ou fornecedor.',receive:'Registre recebimentos totais ou parciais por item.'}[t]||'';if(t==='settings')loadFirebaseConfig();render()}
+function tab(t){current=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));$('formPanel').classList.add('hidden');$('mainPanel').classList.toggle('hidden',t==='sup'||t==='settings');$('supPanel').classList.toggle('hidden',t!=='sup');$('settingsPanel').classList.toggle('hidden',t!=='settings');$('selection').classList.toggle('hidden',t!=='buy');$('listTitle').textContent={req:'Requisições cadastradas',buy:'Itens para o setor de compras',receive:'Controle de recebimentos'}[t]||'';$('listSub').textContent={req:'Consulte, edite, aprove ou rejeite solicitações.',buy:'Marque os itens desejados e gere PDFs por seleção ou fornecedor.',receive:'Registre recebimentos totais ou parciais por item.'}[t]||'';render()}
 function newReq(){ $('reqForm').reset();$('reqId').value='';$('reqNo').value='RC-'+new Date().getFullYear()+'-'+String(Date.now()).slice(-6);$('reqDate').value=dateBRInput(new Date().toISOString().slice(0,10));$('formTitle').textContent='Nova requisição';$('lines').innerHTML='';addLine();$('formPanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})}function closeForm(){$('formPanel').classList.add('hidden')}
 function supplierOptions(value=''){return '<option value="">Selecione...</option>'+db.suppliers.map(s=>`<option value="${s.id}" ${s.id===value?'selected':''}>${esc(s.name)}</option>`).join('')}
 function addLine(x={}){let id=uid(),d=document.createElement('div');d.className='itembox';d.dataset.id=x.id||id;d.innerHTML=`<div class="itemhead"><b>Item da requisição</b><button type="button" class="red small" onclick="this.closest('.itembox').remove()">Remover item</button></div><div class="itemgrid"><div><label>Descrição *</label><input class="desc" required value="${esc(x.desc||'')}" placeholder="Descrição do produto"></div><div><label>Quantidade *</label><input class="qty" type="number" min="0.001" step="0.001" required value="${x.qty??''}" placeholder="0"></div><div><label>Unidade</label><select class="unit">${['UN','KG','MT','LT','CX','PC','RL','JG'].map(u=>`<option ${x.unit===u?'selected':''}>${u}</option>`).join('')}</select></div><div><label>Código interno</label><input class="internal" value="${esc(x.internal||'')}"></div><div><label>Código fornecedor</label><input class="vendorcode" value="${esc(x.vendorcode||'')}"></div><div><label>Fornecedor</label><select class="supplier">${supplierOptions(x.supplier||'')}</select></div><div><label>Observação</label><input class="note" value="${esc(x.note||'')}" placeholder="Detalhes"></div></div>`;$('lines').appendChild(d)}
@@ -30,9 +30,7 @@ function exportCSV(){let rows=[['Requisição','Data solicitada','Data prevista 
 
 function backupJSON(){let payload={app:'Elo Scientific - Gestão de Compras',version:3,exportedAt:new Date().toISOString(),data:db};let blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Elo_Scientific_Backup_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function restoreJSON(event){let file=event.target.files?.[0];if(!file)return;let reader=new FileReader();reader.onload=()=>{try{let parsed=JSON.parse(reader.result),incoming=parsed.data||parsed;if(!incoming||!Array.isArray(incoming.reqs)||!Array.isArray(incoming.suppliers))throw new Error('Estrutura inválida');if(!confirm('A restauração substituirá os dados atuais deste navegador. Faça um backup antes de continuar. Deseja prosseguir?'))return;db={reqs:incoming.reqs,suppliers:incoming.suppliers};persist();alert('Backup restaurado com sucesso.')}catch(err){alert('Não foi possível restaurar este arquivo. Selecione um backup JSON válido do sistema Elo Scientific.')}finally{event.target.value=''}};reader.readAsText(file)}
-function loadFirebaseConfig(){let cfg=localStorage.getItem('elo_firebase_config')||'';$('firebaseConfig').value=cfg;$('firebaseStatus').textContent=cfg?'Configuração Firebase salva neste navegador. Entre com uma conta autorizada para iniciar a sincronização.':'Configuração ainda não salva. A chave web do Firebase é identificador público; a proteção real depende de autenticação e regras de segurança do Firestore.'}
-function saveFirebaseConfig(){let raw=$('firebaseConfig').value.trim();if(!raw){alert('Cole o objeto de configuração Firebase antes de salvar.');return}try{let normalized=raw.replace(/^const\s+firebaseConfig\s*=\s*/,'').replace(/;\s*$/,'');let cfg=JSON.parse(normalized);if(!cfg.apiKey||!cfg.projectId||!cfg.appId)throw new Error('Campos essenciais ausentes');localStorage.setItem('elo_firebase_config',JSON.stringify(cfg));$('firebaseConfig').value=JSON.stringify(cfg,null,2);$('firebaseStatus').textContent='Configuração salva neste navegador. Projeto: '+cfg.projectId+'. Para sincronizar, configure Authentication e Firestore e entre com uma conta autorizada.';alert('Configuração Firebase salva neste navegador.')}catch(e){alert('Configuração inválida. Cole o objeto JSON firebaseConfig com apiKey, projectId e appId. Não inclua senhas ou chaves privadas.')}}
-function clearFirebaseConfig(){if(!confirm('Apagar a configuração Firebase salva neste navegador?'))return;localStorage.removeItem('elo_firebase_config');loadFirebaseConfig()}
+
 
 render();
 window.applyFirebaseDb=function(remote){db=remote;localStorage.setItem(KEY,JSON.stringify(db));render()};
@@ -40,15 +38,9 @@ window.applyFirebaseDb=function(remote){db=remote;localStorage.setItem(KEY,JSON.
 <script type="module">
 import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
-import { getFirestore, collection, doc, onSnapshot, writeBatch, getDocs } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
-let app=null,auth=null,fs=null,unsubReq=null,unsubSup=null,currentUser=null,initialReq=null,initialSup=null,ready=false,remoteReqIds=new Set(),remoteSupIds=new Set(),saveQueue=Promise.resolve();
-const status=(msg)=>{const el=document.getElementById('cloudStatus');if(el)el.textContent=msg};
-const localDb=()=>{try{return JSON.parse(localStorage.getItem('gestao_compras_v2')||'{"reqs":[],"suppliers":[]}')}catch{return {reqs:[],suppliers:[]}}};
-function stopListeners(){if(unsubReq)unsubReq();if(unsubSup)unsubSup();unsubReq=unsubSup=null;ready=false;initialReq=initialSup=null;remoteReqIds=new Set();remoteSupIds=new Set()}
-function applyRemote(){if(initialReq===null||initialSup===null)return;const remote={reqs:initialReq,suppliers:initialSup};remoteReqIds=new Set(remote.reqs.map(x=>x.id));remoteSupIds=new Set(remote.suppliers.map(x=>x.id));if(!ready){ready=true;if(!remote.reqs.length&&!remote.suppliers.length){const local=localDb();if(local.reqs.length||local.suppliers.length){status('Nuvem vazia. Enviando os dados existentes deste computador para o Firestore…');window.firebaseSaveDb(local);return}}}window.applyFirebaseDb(remote);status(`Sincronizado com a nuvem. ${remote.reqs.length} requisição(ões) e ${remote.suppliers.length} fornecedor(es). Conta: ${currentUser.email||currentUser.uid}`)}
-function startListeners(){stopListeners();const reqCol=collection(fs,'compras_requisicoes'),supCol=collection(fs,'compras_fornecedores');unsubReq=onSnapshot(reqCol,s=>{initialReq=s.docs.map(d=>({...d.data(),id:d.id}));applyRemote()},e=>status('Erro ao ler requisições: '+e.message));unsubSup=onSnapshot(supCol,s=>{initialSup=s.docs.map(d=>({...d.data(),id:d.id}));applyRemote()},e=>status('Erro ao ler fornecedores: '+e.message))}
-window.firebaseSaveDb=function(data){if(!currentUser||!ready)return;const snapshot=JSON.parse(JSON.stringify(data));saveQueue=saveQueue.then(async()=>{const reqs=snapshot.reqs||[],sups=snapshot.suppliers||[];const reqIds=new Set(reqs.map(x=>x.id)),supIds=new Set(sups.map(x=>x.id));const ops=[];for(const x of reqs)ops.push({ref:doc(fs,'compras_requisicoes',String(x.id)),data:x});for(const x of sups)ops.push({ref:doc(fs,'compras_fornecedores',String(x.id)),data:x});for(const id of remoteReqIds)if(!reqIds.has(id))ops.push({ref:doc(fs,'compras_requisicoes',id),del:true});for(const id of remoteSupIds)if(!supIds.has(id))ops.push({ref:doc(fs,'compras_fornecedores',id),del:true});for(let i=0;i<ops.length;i+=450){const batch=writeBatch(fs);for(const op of ops.slice(i,i+450)){if(op.del)batch.delete(op.ref);else batch.set(op.ref,op.data)}await batch.commit()}remoteReqIds=reqIds;remoteSupIds=supIds;status(`Salvo e sincronizado na nuvem. ${reqs.length} requisição(ões), ${sups.length} fornecedor(es).`)}).catch(e=>status('Falha ao salvar na nuvem: '+e.message+'. Seus dados continuam guardados neste navegador.'));return saveQueue};
-const EMBEDDED_FIREBASE_CONFIG = {
+import { getFirestore, collection, doc, onSnapshot, writeBatch } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCxIhiTHBDlS88_CsKOMUzevW7p_aYOHEg",
   authDomain: "crompraselo.firebaseapp.com",
   databaseURL: "https://crompraselo-default-rtdb.firebaseio.com",
@@ -57,7 +49,101 @@ const EMBEDDED_FIREBASE_CONFIG = {
   messagingSenderId: "276819409087",
   appId: "1:276819409087:web:f57e2ce1d0e222288e2e0a",
   measurementId: "G-5VW3B8G133"
-window.firebaseLogin=async function(){try{let cfg=JSON.parse(localStorage.getItem('elo_firebase_config')||'null');if(!cfg||!cfg.apiKey)cfg=EMBEDDED_FIREBASE_CONFIG;if(!cfg||!cfg.apiKey||cfg.apiKey==="SUA_API_KEY_AQUI"){status('Cole suas chaves do Firebase nas configurações ou edite o arquivo.');return}if(!app){app=getApps().length?getApps()[0]:initializeApp(cfg);auth=getAuth(app);fs=getFirestore(app);onAuthStateChanged(auth,user=>{currentUser=user;if(user){status('Conta autenticada. Conectando ao Firestore…');startListeners()}else{stopListeners();status('Desconectado da nuvem. Os dados locais continuam disponíveis.')}})}if(!auth.currentUser){const email=document.getElementById('firebaseEmail').value.trim(),password=document.getElementById('firebasePassword').value;if(!email||!password){status('Informe e-mail e senha.');return}await signInWithEmailAndPassword(auth,email,password)}}catch(e){status('Não foi possível conectar: '+e.message)}};
-window.firebaseLogout=async function(){if(auth)try{await signOut(auth)}catch(e){status('Erro ao sair: '+e.message)}};
-window.addEventListener('online',()=>{if(currentUser&&ready)status('Conexão restabelecida. Aguardando sincronização…')});
+};
+
+let app=getApps().length?getApps()[0]:initializeApp(FIREBASE_CONFIG);
+let auth=getAuth(app);
+let fs=getFirestore(app);
+let unsubReq=null,unsubSup=null,currentUser=null,initialReq=null,initialSup=null,ready=false,remoteReqIds=new Set(),remoteSupIds=new Set(),saveQueue=Promise.resolve();
+
+const status=(msg)=>{const el=document.getElementById('cloudStatus');if(el)el.textContent=msg};
+const localDb=()=>{try{return JSON.parse(localStorage.getItem('gestao_compras_v2')||'{"reqs":[],"suppliers":[]}')}catch{return {reqs:[],suppliers:[]}}};
+
+function stopListeners(){if(unsubReq)unsubReq();if(unsubSup)unsubSup();unsubReq=unsubSup=null;ready=false;initialReq=initialSup=null;remoteReqIds=new Set();remoteSupIds=new Set()}
+
+function applyRemote(){
+  if(initialReq===null||initialSup===null)return;
+  const remote={reqs:initialReq,suppliers:initialSup};
+  remoteReqIds=new Set(remote.reqs.map(x=>x.id));
+  remoteSupIds=new Set(remote.suppliers.map(x=>x.id));
+  if(!ready){
+    ready=true;
+    if(!remote.reqs.length&&!remote.suppliers.length){
+      const local=localDb();
+      if(local.reqs.length||local.suppliers.length){
+        status('Nuvem inicializada. Enviando dados locais para o Cloud Firestore…');
+        window.firebaseSaveDb(local);
+        return;
+      }
+    }
+  }
+  window.applyFirebaseDb(remote);
+  status(`Sincronizado com a nuvem (crompraselo). ${remote.reqs.length} requisição(ões), ${remote.suppliers.length} fornecedor(es). Conta: ${currentUser.email||currentUser.uid}`);
+}
+
+function startListeners(){
+  stopListeners();
+  const reqCol=collection(fs,'compras_requisicoes'),supCol=collection(fs,'compras_fornecedores');
+  unsubReq=onSnapshot(reqCol,s=>{initialReq=s.docs.map(d=>({...d.data(),id:d.id}));applyRemote()},e=>status('Erro ao ler requisições: '+e.message));
+  unsubSup=onSnapshot(supCol,s=>{initialSup=s.docs.map(d=>({...d.data(),id:d.id}));applyRemote()},e=>status('Erro ao ler fornecedores: '+e.message));
+}
+
+onAuthStateChanged(auth,user=>{
+  currentUser=user;
+  if(user){
+    status('Autenticado com sucesso. Conectando ao Cloud Firestore…');
+    startListeners();
+  }else{
+    stopListeners();
+    status('Projeto crompraselo pronto. Insira e-mail e senha para sincronizar.');
+  }
+});
+
+window.firebaseSaveDb=function(data){
+  if(!currentUser||!ready)return;
+  const snapshot=JSON.parse(JSON.stringify(data));
+  saveQueue=saveQueue.then(async()=>{
+    const reqs=snapshot.reqs||[],sups=snapshot.suppliers||[];
+    const reqIds=new Set(reqs.map(x=>x.id)),supIds=new Set(sups.map(x=>x.id));
+    const ops=[];
+    for(const x of reqs)ops.push({ref:doc(fs,'compras_requisicoes',String(x.id)),data:x});
+    for(const x of sups)ops.push({ref:doc(fs,'compras_fornecedores',String(x.id)),data:x});
+    for(const id of remoteReqIds)if(!reqIds.has(id))ops.push({ref:doc(fs,'compras_requisicoes',id),del:true});
+    for(const id of remoteSupIds)if(!supIds.has(id))ops.push({ref:doc(fs,'compras_fornecedores',id),del:true});
+    for(let i=0;i<ops.length;i+=450){
+      const batch=writeBatch(fs);
+      for(const op of ops.slice(i,i+450)){
+        if(op.del)batch.delete(op.ref);
+        else batch.set(op.ref,op.data);
+      }
+      await batch.commit();
+    }
+    remoteReqIds=reqIds;
+    remoteSupIds=supIds;
+    status(`Salvo e sincronizado na nuvem (crompraselo). ${reqs.length} requisição(ões), ${sups.length} fornecedor(es).`);
+  }).catch(e=>status('Falha ao salvar na nuvem: '+e.message));
+  return saveQueue;
+};
+
+window.firebaseLogin=async function(){
+  try{
+    const email=document.getElementById('firebaseEmail').value.trim(),password=document.getElementById('firebasePassword').value;
+    if(!email||!password){
+      status('Informe o e-mail e a senha cadastrados no Firebase Authentication.');
+      return;
+    }
+    status('Autenticando…');
+    await signInWithEmailAndPassword(auth,email,password);
+  }catch(e){
+    status('Não foi possível conectar: '+e.message);
+  }
+};
+
+window.firebaseLogout=async function(){
+  if(auth)try{await signOut(auth)}catch(e){status('Erro ao sair: '+e.message)}
+};
+
+window.addEventListener('online',()=>{
+  if(currentUser&&ready)status('Conexão restabilizada. Aguardando sincronização em tempo real…');
+});
 </script></body></html>
